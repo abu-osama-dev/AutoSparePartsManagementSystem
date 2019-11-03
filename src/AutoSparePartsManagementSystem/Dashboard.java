@@ -263,7 +263,7 @@ public class Dashboard extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1091, Short.MAX_VALUE)
             .addComponent(MainDesktopPane)
         );
         layout.setVerticalGroup(
@@ -277,7 +277,7 @@ public class Dashboard extends javax.swing.JFrame {
 
         MainDesktopPane.getAccessibleContext().setAccessibleDescription("");
 
-        setSize(new java.awt.Dimension(994, 705));
+        setSize(new java.awt.Dimension(1107, 705));
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 

@@ -217,51 +217,47 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
                 Object obj4 = GetData(table_items, i, 3);
                 Object obj5 = GetData(table_items, i, 4);
                 Object obj6 = GetData(table_items, i, 5);
-//                Object obj7 = GetData(table_items, i, 6);
-//                Object obj8 = GetData(table_items, i, 7);
+                Object obj7 = GetData(table_items, i, 6);
+                Object obj8 = GetData(table_items, i, 7);
 
-                int invoice_item_id = Integer.parseInt(obj1.toString());  //Item SNO
-                System.out.println(invoice_item_id);
+                int value1 = Integer.parseInt(obj1.toString());  //Item SNO
+                System.out.println(value1);
+                String value2 = obj2.toString();                  //Part No.
+                System.out.println(value2);
+                String value3 = obj3.toString();                  //Description
+                System.out.println(value3);
+                int value4 = Integer.parseInt(obj4.toString());   //Qty
+                System.out.println(value4);
+                float value5 = Float.parseFloat(obj5.toString()); //Price
+                System.out.println(value5);
+                float value6 = Float.parseFloat(obj6.toString()); //Amount
+                System.out.println(value6);
+                float value7 = Float.parseFloat(obj7.toString()); //Discount
+                System.out.println(value7);
+                float value8 = Float.parseFloat(obj8.toString()); //Item total
+                System.out.println(value8);
                 
-                String part_no = obj2.toString();                  //Part No.
-                System.out.println(part_no);
-                
-                String part_name = "";//obj3.toString();                  //Description
-                System.out.println(part_name);
-                
-                int unit = Integer.parseInt(obj3.toString());   //Qty
-                System.out.println(unit);
-                
-                float price = Float.parseFloat(obj4.toString()); //Price
-                System.out.println(price);
-                
-                float amount = Float.parseFloat(obj4.toString()); //Amount
-                System.out.println(amount);
-                float discount = Float.parseFloat(obj5.toString()); //Discount
-                System.out.println(discount);
-                float items_total = Float.parseFloat(obj6.toString()); //Item total
-                System.out.println(items_total);
-                stockUpdate(part_no, unit);
-
-                String salesql = "insert into purchaseitems (invoice_item_id, part_no, part_name, unit, price, amount, discount, items_total, invoice_id, bill_total, purch_invoice_no) "
+                String salesql = "insert into purchaseitems (invoice_item_id, part_no, part_name, unit, price,  amount, discount, items_total, invoice_id, bill_total, purch_invoice_no) "
                         + "values(?,?,?,?,?,?,?,?,?,?,?)";
 
                 pstm = (PreparedStatement) connect.prepareStatement(salesql, PreparedStatement.RETURN_GENERATED_KEYS);
                 System.out.println("Preperation");
-                pstm.setInt(1, invoice_item_id);
-                pstm.setString(2, part_no);
-                pstm.setString(3, part_name);
-                pstm.setInt(4, unit);
-                pstm.setFloat(5, price);
-                pstm.setFloat(6, amount);
-                pstm.setFloat(7, discount);
-                pstm.setFloat(8, items_total);
+                pstm.setInt(1, value1);
+                pstm.setString(2, value2);
+                pstm.setString(3, value3);
+                pstm.setInt(4, value4);
+                pstm.setFloat(5, value5);
+                pstm.setFloat(6, value6);
+                pstm.setFloat(7, value7);
+                pstm.setFloat(8, value8);
                 pstm.setInt(9, (int) key);
                 pstm.setFloat(10, grandTotal);
                 pstm.setInt(11, bill_no);
 
                 index++;
                 pstm.executeUpdate();
+                
+                stockUpdate(value2, value4);
             }
             System.out.println("execute");
             System.out.println("saved Successfully");
@@ -269,8 +265,8 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(null, "Purchase entry successful");
             this.dispose();
         } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(rootPane, "Error occured while adding Purchased items :"+e);
+           e.printStackTrace();
+           JOptionPane.showMessageDialog(rootPane, "Error occured while adding Purchased items :"+e);
         }
     }
 
@@ -336,6 +332,8 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
 
         setClosable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
+        setMaximizable(true);
+        setResizable(true);
         setPreferredSize(new java.awt.Dimension(978, 533));
 
         jPanel1.setBackground(new java.awt.Color(0, 102, 102));
@@ -447,14 +445,14 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "S.no", "Auto Part No.", "Unit", "Price", "Discount", "Total Amount"
+                "S.no", "Auto Part No.", "Auto Part Name", "Price", "Unit", "Amount", "Discount", "Total Amount"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -470,24 +468,12 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
             table_items.getColumnModel().getColumn(0).setMinWidth(50);
             table_items.getColumnModel().getColumn(0).setPreferredWidth(50);
             table_items.getColumnModel().getColumn(0).setMaxWidth(50);
-            table_items.getColumnModel().getColumn(1).setMinWidth(200);
-            table_items.getColumnModel().getColumn(1).setPreferredWidth(200);
-            table_items.getColumnModel().getColumn(1).setMaxWidth(200);
-            table_items.getColumnModel().getColumn(2).setMinWidth(100);
-            table_items.getColumnModel().getColumn(2).setPreferredWidth(100);
-            table_items.getColumnModel().getColumn(2).setMaxWidth(100);
-            table_items.getColumnModel().getColumn(3).setMinWidth(100);
-            table_items.getColumnModel().getColumn(3).setPreferredWidth(100);
-            table_items.getColumnModel().getColumn(3).setMaxWidth(100);
-            table_items.getColumnModel().getColumn(4).setMinWidth(100);
-            table_items.getColumnModel().getColumn(4).setPreferredWidth(100);
-            table_items.getColumnModel().getColumn(4).setMaxWidth(100);
-            table_items.getColumnModel().getColumn(5).setMinWidth(100);
-            table_items.getColumnModel().getColumn(5).setPreferredWidth(100);
-            table_items.getColumnModel().getColumn(5).setMaxWidth(100);
+            table_items.getColumnModel().getColumn(1).setMinWidth(100);
+            table_items.getColumnModel().getColumn(1).setPreferredWidth(100);
+            table_items.getColumnModel().getColumn(1).setMaxWidth(100);
         }
 
-        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 130, 652, -1));
+        jPanel1.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(310, 140, 930, -1));
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel7.setForeground(new java.awt.Color(255, 255, 255));
@@ -518,7 +504,7 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 995, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1245, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -567,7 +553,12 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_cmb_supplierActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        purchaseupdate(); 
+        if (txt_inv_no.getText().equals("") || txt_inv_no.getText() == null) {
+            JOptionPane.showMessageDialog(null, "Please Enter purchase bill no. It cannot be Blank");
+            txt_inv_no.requestFocusInWindow();
+        } else {
+            purchaseupdate();
+        }
     }//GEN-LAST:event_jButton1ActionPerformed
 
 
