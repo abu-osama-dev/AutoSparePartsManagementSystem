@@ -130,7 +130,6 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
 
 
         String data1 = cmb_part_no.getSelectedItem().toString();
-        //String data2 = category;
         String data2 = txt_unit.getText();
         String data3 = txt_price.getText();
         String data4 = txt_discount.getText();
@@ -156,15 +155,18 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
     }
 
     public void stockUpdate(String product, int qty) {
+        
+        System.out.println("I am about to purchase "+product+" and how much "+qty);
 
         int istock = 0;
         try {
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT part_no, name, stock_unit, sales_price, purchase_price FROM parts where name = '" + product + "'";
+            String sql = "SELECT part_no, name, stock_unit, sales_price, purchase_price FROM parts where part_no = '" + product + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
+                System.out.println("Found an item and I am about to update stock");
                 String stock = rs.getString("stock_unit");
                 System.out.println("Stock in db " + stock);
                 istock = Integer.parseInt(stock);
@@ -172,7 +174,7 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
             }
             System.out.println(istock - qty);
             int tstock = istock + qty;
-            String usql = "UPDATE parts SET stock_unit = '" + tstock + "' WHERE name = '" + product + "'";
+            String usql = "UPDATE parts SET stock_unit = '" + tstock + "' WHERE part_no = '" + product + "'";
             stmt.executeUpdate(usql);
             System.out.println("Stock updated");
 

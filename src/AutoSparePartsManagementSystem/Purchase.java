@@ -71,7 +71,7 @@ public class Purchase extends javax.swing.JInternalFrame {
             txt_inv_no.setText(invoiceid);
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT invoice_item_id, part_no, part_name, unit, price, amount, discount,items_total, bill_total, supplier_name FROM purchaseitems INNER JOIN purchases ON purchaseitems.invoice_id=purchases.id WHERE purchases.id = '" + invoiceid + "'";
+            String sql = "SELECT invoice_item_id, part_no, part_name, unit, price, amount, discount,items_total, bill_total, supplier_name FROM purchaseitems INNER JOIN purchases ON purchaseitems.invoice_id=purchases.id WHERE purchases.invoice_no = '" + invoiceid + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {

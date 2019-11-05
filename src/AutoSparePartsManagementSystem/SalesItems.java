@@ -50,7 +50,7 @@ public class SalesItems extends javax.swing.JInternalFrame {
     public void productcombo() {
         try {
             Statement stmt = connect.createStatement();
-            String sql = "SELECT id,  part_no,  name,  stock_unit,  sales_price, purchase_price,  FROM parts";
+            String sql = "SELECT    id, part_no, name, stock_unit, sales_price, purchase_price  FROM parts";
             ResultSet rs = stmt.executeQuery(sql);
             while (rs.next()) {
                 String refferedby = rs.getString("name") + " - " + rs.getString("part_no");
@@ -63,6 +63,39 @@ public class SalesItems extends javax.swing.JInternalFrame {
 
     }
     
+    
+    public void updateprice() {
+        String prodname = cbo_prodNamesearch.getSelectedItem().toString();
+        if (!prodname.equals("")) {
+            String[] cbo_search = prodname.split(" - ", -1);
+            prodname = cbo_search[0];
+            System.out.println("Array Length "+cbo_search.length);
+            if(cbo_search.length >0){
+                productno = cbo_search[1];
+            }
+            try {
+                Statement stmt = connect.createStatement();
+
+                String sql = "SELECT id, part_no, name, stock_unit, sales_price,  purchase_price FROM parts where name = '" + prodname + "' AND part_no = '" + productno + "'";
+                ResultSet rs = stmt.executeQuery(sql);
+
+                while (rs.next()) {
+                    String salesprice = rs.getString("sales_price");
+                    String Stock = rs.getString("stock_unit");
+                    //category = rs.getString("CATEGORY");
+                    //productno = rs.getString("PRODUCTNO");
+                    //type = rs.getString("TYPE");
+                    txt_price.setText(salesprice);
+                    txt_stock.setText(Stock);
+
+                }
+
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(null, e);
+            }
+        }
+    }
+
     
     public void updatetotal() {
 
@@ -107,18 +140,18 @@ public class SalesItems extends javax.swing.JInternalFrame {
         try {
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT id, name, stock_unit sales_price, purchase_price FROM parts where name = '" + product + "'";
+            String sql = "SELECT id, name, stock_unit, sales_price, purchase_price FROM parts where part_no = '" + product + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
-                String stock = rs.getString("stock");
+                String stock = rs.getString("stock_unit");
                 System.out.println("Stock in db " + stock);
                 istock = Integer.parseInt(stock);
                 System.out.println("iStock in db " + stock);
             }
             System.out.println(istock - qty);
             int tstock = istock - qty;
-            String usql = "UPDATE parts SET STOCK = '" + tstock + "' WHERE name = '" + product + "'";
+            String usql = "UPDATE parts SET stock_unit = '" + tstock + "' WHERE part_no = '" + product + "'";
             stmt.executeUpdate(usql);
             System.out.println("Stock updated");
 
@@ -142,11 +175,13 @@ public class SalesItems extends javax.swing.JInternalFrame {
         long key = -1L;
 
         try {
-            String isql = "insert into invoice (PARTYSNAME, INVOICETOTAL) values(?,?)";
+            String isql = "insert into sales (PARTYSNAME, PHONE, ADDRESS, INVOICETOTAL) values(?,?,?,?)";
 
             preparedstatement = (PreparedStatement) connect.prepareStatement(isql, PreparedStatement.RETURN_GENERATED_KEYS);
             preparedstatement.setString(1, txt_customer.getText().toString());
-            preparedstatement.setFloat(2, grandTotal);
+            preparedstatement.setString(2, txt_phone.getText().toString());
+            preparedstatement.setString(3, txt_address.getText());
+            preparedstatement.setFloat(4, Float.parseFloat(lbl_billtotal.getText().toString()));
 
             preparedstatement.executeUpdate();
             rs = preparedstatement.getGeneratedKeys();
@@ -194,7 +229,7 @@ public class SalesItems extends javax.swing.JInternalFrame {
 
                 stockUpdate(value2, value4);
 
-                String salesql = "insert into solditems (INVITEMSNO, PRODUCT, DESCRIPTION, QUANTITY, PRICE, AMOUNT, DISCOUNT, ITEMTOTAL, INVOICEID, BILLTOTAL) "
+                String salesql = "insert into salesitems (INVITEMSNO, PARTNO, PARTNAME, QUANTITY, PRICE, AMOUNT, DISCOUNT, ITEMTOTAL, INVOICEID, BILLTOTAL) "
                         + "values(?,?,?,?,?,?,?,?,?,?)";
 
                 //connect = MySQLConnection.ConnectMySQL();
@@ -461,19 +496,21 @@ public class SalesItems extends javax.swing.JInternalFrame {
 
     private void txt_disActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_disActionPerformed
             updatetotal();
-           // TODO add your handling code here:
+            tx_total.requestFocus();
+           
     }//GEN-LAST:event_txt_disActionPerformed
 
     private void txt_priceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_priceActionPerformed
-        // TODO add your handling code here:
+            txt_dis.requestFocus();
     }//GEN-LAST:event_txt_priceActionPerformed
 
     private void txt_stockActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_stockActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_txt_stockActionPerformed
 
     private void cbo_prodNamesearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbo_prodNamesearchActionPerformed
-                       // TODO add your handling code here:
+               updateprice();
+               txt_quantity.requestFocus();
     }//GEN-LAST:event_cbo_prodNamesearchActionPerformed
 
     private void txt_customerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_customerActionPerformed
@@ -485,11 +522,29 @@ public class SalesItems extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_txt_phoneActionPerformed
 
     private void invoice_tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_invoice_tableMouseClicked
-        
+                int row = invoice_table.getSelectedRow();
+        String column_value = (invoice_table.getModel().getValueAt(row, 0).toString());
+
+        DefaultTableModel model = (DefaultTableModel) invoice_table.getModel();
+        model.removeRow(row);
+        int rcount = ((DefaultTableModel) invoice_table.getModel()).getRowCount();
+        System.out.println("Row count " + rcount);
+        int irow = 1;
+        float itotal = 0;
+        for (int i = 0; i <= rcount; i++) {
+            model.setValueAt(irow, i, 0);
+            irow++;
+            String t = model.getValueAt(i, 7).toString();
+            float tt = Float.parseFloat(t);
+            itotal += tt;
+            lbl_billtotal.setText(String.valueOf(itotal));
+            grandTotal = itotal;
+        }
+
     }//GEN-LAST:event_invoice_tableMouseClicked
 
     private void tx_totalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tx_totalActionPerformed
-              String rStock = txt_stock.getText();
+        String rStock = txt_stock.getText();
         int irStock = Integer.parseInt(rStock);
 
         String rQ = txt_quantity.getText();
@@ -511,11 +566,27 @@ public class SalesItems extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_txt_addressActionPerformed
 
     private void btn_sellActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_sellActionPerformed
-    
+        try {
+            sellupdate();
+        } 
+        catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Database Connection could not be established");
+        }
     }//GEN-LAST:event_btn_sellActionPerformed
 
     private void txt_quantityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_quantityActionPerformed
+        txt_price.requestFocusInWindow();
 
+        String rStock = txt_stock.getText();
+        int irStock = Integer.parseInt(rStock);
+
+        String rQ = txt_quantity.getText();
+        int irQ = Integer.parseInt(rQ);
+
+        if ((irStock - irQ) <= -1 && type.equals("Product")) {
+            JOptionPane.showMessageDialog(null, "You don't have enough stock");
+            txt_quantity.requestFocusInWindow();
+        }
                 // TODO add your handling code here:
     }//GEN-LAST:event_txt_quantityActionPerformed
 
