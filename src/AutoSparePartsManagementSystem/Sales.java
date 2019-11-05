@@ -44,8 +44,10 @@ public class Sales extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             System.out.println(e);
         }
-        UpdPurchaseBill();
+        UpdsalesBill();
     }
+    
+
     
     public void billData(String invoiceid) {
         updateHead(invoiceid);
@@ -53,28 +55,31 @@ public class Sales extends javax.swing.JInternalFrame {
             inv_no.setText(invoiceid);
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT `INVITEMSNO` AS `S.NO.`, PARTNO, PARTNAME, QUANTITY, PRICE, AMOUNT, DISCOUNT,`ITEMTOTAL` AS `ITEM TOTAL` FROM salesitems INNER JOIN sales ON salesitems.INVOICEID=invoice.INVOICEID WHERE invoice.INVOICEID = '" + invoiceid + "'";
+            String sql = "SELECT INVITEMSNO, PARTNAME, QUANTITY, PRICE, AMOUNT, DISCOUNT, ITEMTOTAL  FROM salesitems INNER JOIN sales ON salesitems.INVOICEID=sales.INVOICEID WHERE sales.INVOICEID = '" + invoiceid + "'";
             ResultSet rs = stmt.executeQuery(sql);
-            jTable1.setModel(DbUtils.resultSetToTableModel(rs));
+            sales_table.setModel(DbUtils.resultSetToTableModel(rs));
 
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(null, e);
         }
     }
-
-    public void updateHead(String invoiceid) {
+    
+    
+    
+     public void updateHead(String invoiceid) {
+        
+        
         try {
             inv_no.setText(invoiceid);
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT INVITEMSNO, PARTNO, PARTNAME, QUANTITY, PRICE, AMOUNT, DISCOUNT,ITEMTOTAL, BILLTOTAL, PARTYSNAME FROM salesitems INNER JOIN invoice ON salesitems.INVOICEID=invoice.INVOICEID WHERE invoice.INVOICEID = '" + invoiceid + "'";
+            String sql = "SELECT INVITEMSNO, PARTNAME, QUANTITY, PRICE, AMOUNT, DISCOUNT, ITEMTOTAL, BILLTOTAL, PARTYSNAME FROM salesitems INNER JOIN sales ON salesitems.INVOICEID=sales.INVOICEID WHERE sales.INVOICEID = '" + invoiceid + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
                 String refferedby = rs.getString("BILLTOTAL");
                 gtotal.setText(refferedby);
-                suppliers_name.removeAllItems();
-                suppliers_name.addItem(rs.getString("PARTYSNAME"));
+                customer_name.addItem(rs.getString("PARTYSNAME"));
 
             }
 
@@ -82,33 +87,15 @@ public class Sales extends javax.swing.JInternalFrame {
             JOptionPane.showMessageDialog(null, e);
         }
     }
-    
-    
-    
-    public void UpdPurchaseBill() {
-        
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        java.sql.Timestamp date = new java.sql.Timestamp(new java.util.Date().getTime());
-        String sdate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new java.sql.Timestamp(new java.util.Date().getTime()));
-        String[] arrdate = sdate.split(" ");
-        sdate = arrdate[0]+" 00:00:00";
-        
-        String sql="";
+  public void UpdsalesBill() {
         try {
             Statement stmt = connect.createStatement();
-            
-            if(Dashboard.accessLevel.equals("3")){
-                sql = "SELECT `INVOICEID` AS `INVOICE ID`, `PARTYSNAME` AS `CUSTOMER`, `INVOICETOTAL` AS `GRAND TOTAL`, "
-                        + "`created_at` AS `DATE` FROM `sales` ORDER BY `INVOICEID` DESC";
-            } else {
-                sql = "SELECT `INVOICEID` AS `INVOICE ID`, `PARTYSNAME` AS `CUSTOMER`, `INVOICETOTAL` AS `GRAND TOTAL`, "
-                        + "`created_at` AS `DATE` FROM `sales` WHERE `Date` >= '"+sdate+"' ORDER BY `INVOICEID` DESC";
-            }
-            
+
+            String sql = "SELECT INVOICEID,  PARTYSNAME, INVOICETOTAL, created_at AS CREATED_AT FROM sales ORDER BY INVOICEID DESC";
             ResultSet rs = stmt.executeQuery(sql);
-            sales_bill.setModel(DbUtils.resultSetToTableModel(rs));
+            sales_table.setModel(DbUtils.resultSetToTableModel(rs));
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "SQL Error occured "+e);
+            JOptionPane.showMessageDialog(null, e);
         }
     }
 
@@ -126,11 +113,9 @@ public class Sales extends javax.swing.JInternalFrame {
         next_btn = new javax.swing.JButton();
         prev_btn = new javax.swing.JButton();
         jLabel7 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        suppliers_name = new javax.swing.JComboBox<>();
+        customer_name = new javax.swing.JComboBox<>();
         jScrollPane2 = new javax.swing.JScrollPane();
-        sales_bill = new javax.swing.JTable();
+        sales_table = new javax.swing.JTable();
 
         setClosable(true);
         setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
@@ -189,32 +174,17 @@ public class Sales extends javax.swing.JInternalFrame {
         jLabel7.setText("Customer Name");
         jPanel2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(436, 18, -1, 32));
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {},
-                {},
-                {},
-                {}
-            },
-            new String [] {
-
-            }
-        ));
-        jScrollPane1.setViewportView(jTable1);
-
-        jPanel2.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 877, -1));
-
-        suppliers_name.setEditable(true);
-        suppliers_name.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        suppliers_name.setToolTipText("");
-        suppliers_name.addActionListener(new java.awt.event.ActionListener() {
+        customer_name.setEditable(true);
+        customer_name.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        customer_name.setToolTipText("");
+        customer_name.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                suppliers_nameActionPerformed(evt);
+                customer_nameActionPerformed(evt);
             }
         });
-        jPanel2.add(suppliers_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(554, 20, 150, 30));
+        jPanel2.add(customer_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(554, 20, 150, 30));
 
-        sales_bill.setModel(new javax.swing.table.DefaultTableModel(
+        sales_table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {},
                 {},
@@ -225,15 +195,15 @@ public class Sales extends javax.swing.JInternalFrame {
 
             }
         ));
-        jScrollPane2.setViewportView(sales_bill);
+        jScrollPane2.setViewportView(sales_table);
 
-        jPanel2.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 877, -1));
+        jPanel2.add(jScrollPane2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 90, 877, -1));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 997, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -263,7 +233,7 @@ public class Sales extends javax.swing.JInternalFrame {
         int inext = Integer.parseInt(next);
         int fnext = inext++;
         String snext = Integer.toString(inext);
-        billData(snext);        // TODO add your handling code here:
+        billData(snext);        
     }//GEN-LAST:event_next_btnActionPerformed
 
     private void prev_btnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prev_btnActionPerformed
@@ -271,15 +241,16 @@ public class Sales extends javax.swing.JInternalFrame {
         int inext = Integer.parseInt(next);
         int fnext = inext--;
         String snext = Integer.toString(inext);
-        billData(snext);        // TODO add your handling code here:
+        billData(snext);     
     }//GEN-LAST:event_prev_btnActionPerformed
 
-    private void suppliers_nameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_suppliers_nameActionPerformed
+    private void customer_nameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_customer_nameActionPerformed
         
-    }//GEN-LAST:event_suppliers_nameActionPerformed
+    }//GEN-LAST:event_customer_nameActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> customer_name;
     private javax.swing.JLabel gtotal;
     private javax.swing.JTextField inv_no;
     private javax.swing.JLabel jLabel1;
@@ -287,12 +258,9 @@ public class Sales extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
     private javax.swing.JButton next_btn;
     private javax.swing.JButton prev_btn;
-    private javax.swing.JTable sales_bill;
-    private javax.swing.JComboBox<String> suppliers_name;
+    private javax.swing.JTable sales_table;
     // End of variables declaration//GEN-END:variables
 }
