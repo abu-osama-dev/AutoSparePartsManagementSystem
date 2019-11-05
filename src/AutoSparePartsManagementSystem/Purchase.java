@@ -33,6 +33,7 @@ public class Purchase extends javax.swing.JInternalFrame {
         } catch (Exception e) {
             System.out.println(e);
         }
+        UpdPurchaseBill();
     }
 
     public void billData(String invoiceid) {
@@ -41,7 +42,7 @@ public class Purchase extends javax.swing.JInternalFrame {
             txt_inv_no.setText(invoiceid);
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT invoice_item_id, part_no, part_name, unit, price, amount, discount,items_total FROM purchaseitems INNER JOIN purchases ON purchaseitems.invoice_id=purchases.id WHERE purchases.id = '" + invoiceid + "'";
+            String sql = "SELECT invoice_item_id, part_no,  unit, price, amount, discount, items_total  FROM purchaseitems INNER JOIN purchases ON purchaseitems.invoice_id=purchases.id WHERE purchases.invoice_no = '" + invoiceid + "'";
             ResultSet rs = stmt.executeQuery(sql);
             table_purchase.setModel(DbUtils.resultSetToTableModel(rs));
 
@@ -50,6 +51,19 @@ public class Purchase extends javax.swing.JInternalFrame {
         }
     }
     
+    public void UpdPurchaseBill() {
+        try {
+            Statement stmt = connect.createStatement();
+
+            String sql = "SELECT id, invoice_no, supplier_name, grand_total, created_at FROM purchases ORDER BY id DESC";
+            ResultSet rs = stmt.executeQuery(sql);
+            table_purchase.setModel(DbUtils.resultSetToTableModel(rs));
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
+    }
+
+    
     public void updateHead(String invoiceid) {
         
         
@@ -57,7 +71,7 @@ public class Purchase extends javax.swing.JInternalFrame {
             txt_inv_no.setText(invoiceid);
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT invoice_item_id, part_no, part_name, unit, price, amount, discount,items_total bill_total, supplier_name FROM purchaseitems INNER JOIN purchases ON purchaseitems.invoice_id=purchases.id WHERE purchases.id = '" + invoiceid + "'";
+            String sql = "SELECT invoice_item_id, part_no, part_name, unit, price, amount, discount,items_total, bill_total, supplier_name FROM purchaseitems INNER JOIN purchases ON purchaseitems.invoice_id=purchases.id WHERE purchases.id = '" + invoiceid + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {

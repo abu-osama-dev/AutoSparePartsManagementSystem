@@ -107,7 +107,7 @@ public class SalesItems extends javax.swing.JInternalFrame {
         try {
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT id, name, stock_unit sales_price, purchase_price, FROM parts where name = '" + product + "'";
+            String sql = "SELECT id, name, stock_unit sales_price, purchase_price FROM parts where name = '" + product + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
@@ -461,7 +461,7 @@ public class SalesItems extends javax.swing.JInternalFrame {
 
     private void txt_disActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_disActionPerformed
             updatetotal();
-             tx_total.requestFocusInWindow();// TODO add your handling code here:
+           // TODO add your handling code here:
     }//GEN-LAST:event_txt_disActionPerformed
 
     private void txt_priceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_priceActionPerformed
@@ -503,7 +503,7 @@ public class SalesItems extends javax.swing.JInternalFrame {
             sellproduct();
             cbo_prodNamesearch.requestFocusInWindow();
         }
-    }         // TODO add your handling code here:
+             // TODO add your handling code here:
     }//GEN-LAST:event_tx_totalActionPerformed
 
     private void txt_addressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_addressActionPerformed

@@ -65,6 +65,7 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
         }
 
     }
+    
     public void supplierscombo() {
         try {
             Statement stmt = connect.createStatement();
@@ -127,14 +128,15 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
     
     public void sellproduct() {
 
+
         String data1 = cmb_part_no.getSelectedItem().toString();
+        //String data2 = category;
         String data2 = txt_unit.getText();
         String data3 = txt_price.getText();
         String data4 = txt_discount.getText();
         String data5 = txt_total.getText();
 
-        Object[] row = {data0, data1, data2, data3,  data4,  amt, data5};
-
+        Object[] row = {data0, data1, data3, data2, amt, data4,  data5 };
         DefaultTableModel model = (DefaultTableModel) table_items.getModel();
         System.out.println("About to add row");
         model.addRow(row);
@@ -159,11 +161,11 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
         try {
             Statement stmt = connect.createStatement();
 
-            String sql = "SELECT part_no, name, stock_unit, sales_price, purchase_price, FROM parts where name = '" + product + "'";
+            String sql = "SELECT part_no, name, stock_unit, sales_price, purchase_price FROM parts where name = '" + product + "'";
             ResultSet rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
-                String stock = rs.getString("stock");
+                String stock = rs.getString("stock_unit");
                 System.out.println("Stock in db " + stock);
                 istock = Integer.parseInt(stock);
                 System.out.println("iStock in db " + stock);
@@ -182,7 +184,7 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
     
     public void purchaseupdate() {
 
-        PreparedStatement pstm = null;
+        PreparedStatement pstm = null ;
         ResultSet rs;
         int index = 1;
         int count = table_items.getRowCount();
@@ -218,13 +220,13 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
                 Object obj5 = GetData(table_items, i, 4);
                 Object obj6 = GetData(table_items, i, 5);
                 Object obj7 = GetData(table_items, i, 6);
-                Object obj8 = GetData(table_items, i, 7);
+                //Object obj8 = GetData(table_items, i, 7);
 
                 int value1 = Integer.parseInt(obj1.toString());  //Item SNO
                 System.out.println(value1);
                 String value2 = obj2.toString();                  //Part No.
                 System.out.println(value2);
-                String value3 = obj3.toString();                  //Description
+                float value3 = Float.parseFloat(obj3.toString());                  //Part name
                 System.out.println(value3);
                 int value4 = Integer.parseInt(obj4.toString());   //Qty
                 System.out.println(value4);
@@ -234,25 +236,25 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
                 System.out.println(value6);
                 float value7 = Float.parseFloat(obj7.toString()); //Discount
                 System.out.println(value7);
-                float value8 = Float.parseFloat(obj8.toString()); //Item total
-                System.out.println(value8);
+                //float value8 = Float.parseFloat(obj8.toString()); //Item total
+                //System.out.println(value8);
                 
-                String salesql = "insert into purchaseitems (invoice_item_id, part_no, part_name, unit, price,  amount, discount, items_total, invoice_id, bill_total, purch_invoice_no) "
-                        + "values(?,?,?,?,?,?,?,?,?,?,?)";
+                String salesql = "insert into purchaseitems (invoice_item_id, part_no, price, unit, amount, discount, items_total, invoice_id, bill_total, purch_invoice_no)"
+                        + "values(?,?,?,?,?,?,?,?,?,?)";
 
                 pstm = (PreparedStatement) connect.prepareStatement(salesql, PreparedStatement.RETURN_GENERATED_KEYS);
                 System.out.println("Preperation");
                 pstm.setInt(1, value1);
                 pstm.setString(2, value2);
-                pstm.setString(3, value3);
+                pstm.setFloat(3, value3);
                 pstm.setInt(4, value4);
                 pstm.setFloat(5, value5);
                 pstm.setFloat(6, value6);
                 pstm.setFloat(7, value7);
-                pstm.setFloat(8, value8);
-                pstm.setInt(9, (int) key);
-                pstm.setFloat(10, grandTotal);
-                pstm.setInt(11, bill_no);
+               // pstm.setFloat(8, value8);
+                pstm.setInt(8, (int) key);
+                pstm.setFloat(9, grandTotal);
+                pstm.setInt(10, bill_no);
 
                 index++;
                 pstm.executeUpdate();
@@ -445,22 +447,15 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "S.no", "Auto Part No.", "Auto Part Name", "Price", "Unit", "Amount", "Discount", "Total Amount"
+                "S.no", "Auto Part No.", "Price", "Unit", "Amount", "Discount", "Total Amount"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
-            };
-            boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
+                java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
-            }
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit [columnIndex];
             }
         });
         jScrollPane1.setViewportView(table_items);
@@ -504,7 +499,7 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1245, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -545,7 +540,7 @@ public class PurchaseItems extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_txt_inv_noActionPerformed
 
     private void txt_bill_totalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_bill_totalActionPerformed
-        // TODO add your handling code here:
+        
     }//GEN-LAST:event_txt_bill_totalActionPerformed
 
     private void cmb_supplierActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmb_supplierActionPerformed
